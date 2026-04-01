@@ -16,11 +16,13 @@ Fetch and display all unscrubbed bugs from the OCMUI Jira project. This is the s
 Use `mcp__mcp-atlassian__jira_search` with the following query:
 
 ```jql
-project = OCMUI and type in (Bug, Vulnerability) and status not in (Done, Closed) and (labels not in (scrubbed) or labels is EMPTY) and status = "To Do" order by createdDate desc, priority, created desc
+project = OCMUI and (type in (Bug, Vulnerability) OR summary ~ "CVE-*") and status not in (Done, Closed) and (labels not in (scrubbed) or labels is EMPTY) and status = "To Do" order by priority, created desc
 ```
 
+**Note:** The `OR summary ~ "CVE-*"` clause is a workaround for Vulnerability tickets that may be misreported by the API. CVE tickets typically have "CVE-YYYY-NNNNN" in their summary.
+
 **Parameters:**
-- **fields**: `summary,priority,status,labels,assignee,created,updated,reporter,description`
+- **fields**: `summary,priority,status,labels,assignee,created,updated,reporter,description,issuetype`
 - **limit**: 20
 - **start_at**: 0
 
@@ -83,3 +85,4 @@ After running this skill:
 - **Real-time data**: Every time you run this, it fetches fresh data from Jira
 - **Interruption Catcher workflow**: This is step 1 of IC duty - run this first to see what needs attention
 - **Empty results**: If no unscrubbed bugs are found, congratulate the user - everything is scrubbed!
+- **CVE workaround**: The query includes `summary ~ "CVE-*"` to catch Vulnerability tickets that may be misidentified by the MCP API
