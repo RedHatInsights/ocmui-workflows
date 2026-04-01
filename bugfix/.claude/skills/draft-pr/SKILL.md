@@ -48,7 +48,7 @@ Fixes [OCMUI-{number}](https://issues.redhat.com/browse/OCMUI-{number})
 
 <!-- any additional information reviewers should know -->
 
-{Concise explanation covering: root cause, fix approach, testing summary, and files changed}
+{Concise explanation covering: root cause, fix approach, and testing summary}
 
 # How to Test
 
