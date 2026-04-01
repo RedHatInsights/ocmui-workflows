@@ -27,6 +27,19 @@ This workflow is specifically designed for the OCMUI/UHC Portal team at Red Hat,
 
 **When to use**: Start here when beginning Interruption Catcher duty to see what needs scrubbing
 
+⚠️ **Important Limitation**: CVE/Vulnerability tickets are NOT included in `/list-unscrubbed` results due to API security restrictions. You must manually check the Jira dashboard for CVE tickets (look for 🔒 lock icon and "CVE-YYYY-NNNNN" summaries). See [CVE Handling Guide](reference/CVE-HANDLING.md) for detailed instructions.
+
+## CVE/Vulnerability Handling
+
+CVE (Common Vulnerabilities and Exposures) tickets require special handling and cannot be listed by the `/list-unscrubbed` command due to API security restrictions.
+
+**For CVE tickets:**
+- Manually check the Jira dashboard to find CVE tickets (🔒 icon)
+- Follow the [CVE Handling Guide](reference/CVE-HANDLING.md) for triage and remediation
+- Use `yarn audit` to scan for vulnerabilities in uhc-portal
+- Determine if the CVE affects the frontend (npm) or infrastructure (Go, Python, etc.)
+- Post investigation findings to the Jira ticket
+
 ## Workflow Phases
 
 ### Phase 1: Scrub (`/scrub`) - BUG EVALUATION
@@ -309,6 +322,7 @@ This workflow is customized for OCMUI:
 ## References
 
 - **Unscrubbed Bugs**: Use `/list-unscrubbed` command (executes JQL query directly)
+- **CVE Handling**: See [reference/CVE-HANDLING.md](reference/CVE-HANDLING.md) for vulnerability triage and remediation
 - **UHC Portal Repo**: https://github.com/RedHatInsights/uhc-portal
 - **PR Process**: uhc-portal/docs/pull-request-process.md
 - **PR Template**: uhc-portal/.github/pull_request_template.md
