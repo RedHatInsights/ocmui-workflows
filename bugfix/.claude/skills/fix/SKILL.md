@@ -37,32 +37,58 @@ git checkout -b bugfix/OCMUI-{issue-number}-{brief-description}
 
 ### 3. Implement the Fix
 
-Follow UHC Portal coding standards:
+Follow UHC Portal coding standards from `.cursor/rules/`:
 
-**TypeScript Standards** (from `.cursor/rules/typescript-rules.mdc`):
+**General Standards** (`.cursor/rules/general-rules.mdc`):
+- Keep functions small and single-purpose
+- Use CamelCase for files unless React (tsx/jsx)
+- No abbreviations in variable names
+- Match filename with default export name
+- Use descriptive names for variables and functions
+- Use `UPPER_SNAKE_CASE` for true constants
+- Use early return pattern
+- Handle loading and error states properly with user-friendly messages
+- Use ternary operators instead of if/else when possible (but don't nest)
+- Extract reusable logic to custom hooks or functions
+
+**React Standards** (`.cursor/rules/react-rules.mdc`):
+- Use functional components with hooks (not class components)
+- Keep components small and focused on single responsibility
+- Use PascalCase for component files
+- Boolean props: prefix with `is`, `has`, `can`, `should`
+- Use camelCase for prop names
+- Don't mutate props or state - create copies
+- Don't store derived data in state - compute it
+- Avoid index as key prop - use unique IDs
+- Avoid inline functions in JSX
+- Use ternary pattern: `{show ? <Comp /> : null}` instead of `{show && <Comp />}`
+- Use `useMemo` for expensive calculations
+- Use `useCallback` for functions passed to children
+- Implement proper cleanup in useEffect hooks
+- Use Redux hooks (`useSelector`, `useDispatch`) not connect HOC
+- Use react-query for server state management
+- Avoid custom CSS - use PatternFly variables or utility classes
+
+**React Query Standards** (`.cursor/rules/react-query-rules.mdc`):
+*When fixing bugs involving API calls or data fetching:*
+- Create custom hooks that wrap React Query hooks
+- Add data sent to API as part of the query key
+- Use `enabled` option to prevent queries when dependencies unavailable
+- Use `formatErrorData` helper for consistent error handling
+- Implement proper loading states (`isLoading`, `isPending`, `isFetching`)
+- Use `useQuery` for fetching, `useMutation` for modifications
+- Use `queryClient.invalidateQueries` in mutation `onSuccess` callbacks
+- Keep query functions pure - extract complex logic to service functions
+- Always handle error states with meaningful messages
+- Provide proper fallback values to prevent undefined errors
+- Organize query files by feature/domain
+
+**TypeScript Standards** (`.cursor/rules/typescript-rules.mdc`):
 - Define prop types using TypeScript interfaces
 - Avoid `any` - use `unknown` if needed
 - Use existing types from `src/types/` directories
 - Define return types for all functions
 - Use `import type` for type-only imports
-
-**React Standards** (from `.cursor/rules/react-rules.mdc`):
-- Use functional components with hooks
-- Keep components small and focused
-- Use PascalCase for component files
-- Boolean props: prefix with `is`, `has`, `can`, `should`
-- Don't mutate props or state - create copies
-- Avoid inline functions in JSX
-- Use `useMemo` for expensive calculations
-- Use `useCallback` for functions passed to children
-
-**General Standards** (from `.cursor/rules/general-rules.mdc`):
-- Keep functions small and single-purpose
-- Use CamelCase for files unless React (tsx/jsx)
-- No abbreviations in variable names
-- Match filename with default export name
-- Use early return pattern
-- Extract reusable logic to custom hooks
 
 **PatternFly UI**:
 - Use PatternFly components (no custom CSS)
@@ -84,13 +110,28 @@ Follow UHC Portal coding standards:
 - Fix the specific bug
 - Add issue reference in comments if logic is non-obvious
 - Update types if the fix requires it
+- Check if unit tests exist and suggest adding/modifying if needed
 
-### 5. Run Linters
+### 5. Run Linters and Formatters
 
+**Check code quality:**
 ```bash
-yarn lint
-yarn typecheck
+yarn lint        # ESLint checks (includes Prettier)
+yarn typecheck   # TypeScript type checking
 ```
+
+**Auto-fix formatting issues:**
+```bash
+yarn prettier:fix   # Fix formatting in all src files
+# or
+npx lint-staged     # Fix only staged files (same as pre-commit hook)
+```
+
+**Important notes:**
+- `yarn lint` runs both ESLint and Prettier checks
+- Husky pre-commit hook automatically runs `lint-staged` on commit
+- Staged files in `src/` are auto-formatted by Prettier on commit
+- If auto-fix fails, commit will be blocked - fix manually
 
 Fix any errors before proceeding.
 
@@ -98,13 +139,16 @@ Fix any errors before proceeding.
 
 Run the application locally:
 ```bash
-yarn start
+yarn start  # Proxy mode (manual refresh)
+# or
+yarn dev    # HMR mode (instant updates)
 ```
 
 - Follow the reproduction steps
 - Verify the bug no longer occurs
 - Check that the fix doesn't break related functionality
 - Test edge cases
+- Verify error states and loading states work correctly
 
 ### 7. Generate Implementation Notes
 
@@ -120,6 +164,9 @@ Create `artifacts/bugfix/implementation-{issue-key}.md`:
 
 ## Key Decisions
 {If applicable: - {Decision}: {rationale}}
+
+## Standards Applied
+{Any specific .cursor/rules followed, e.g., "Used React Query pattern for API calls"}
 
 ## PR Size
 {lines} lines, {files} files - {within/over} limits
@@ -148,3 +195,4 @@ After generating implementation notes, re-read `.claude/skills/controller/SKILL.
 - **Test manually**: Don't rely only on automated tests - verify with your eyes
 - **PR size limits**: If over 1000 lines or 30 files, consider splitting the fix
 - **AI attribution**: If AI assisted significantly, note it for the PR description
+- **Check .cursor/rules**: Always reference the appropriate rules files for your changes
