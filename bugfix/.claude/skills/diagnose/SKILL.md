@@ -100,7 +100,43 @@ Conclusion: PATCH supports partial updates, only send changed fields ✅
 - Payload structure questions
 
 
-### 5. Examine Git History
+### 5. Check PatternFly Documentation (if UI component bug)
+
+**When bug involves PatternFly components** (Button, DataList, Form, Modal, Table, etc.):
+
+Use Context7 MCP to fetch current PatternFly React documentation:
+
+**Query PatternFly docs for**:
+- Component props and API reference
+- Usage examples and patterns
+- Best practices and accessibility guidelines
+- Known issues or breaking changes
+
+**Example queries**:
+```
+Use context7 to query:
+- "PatternFly Button component props and variants"
+- "PatternFly DataList component examples"
+- "PatternFly Form validation patterns"
+- "PatternFly Modal accessibility requirements"
+```
+
+**When to check PatternFly docs**:
+- Component not rendering as expected
+- Props not working as documented in old notes
+- Looking for correct prop names or types
+- Need examples of proper component usage
+- Accessibility issues with PatternFly components
+- Migration between PatternFly versions
+
+**Benefits**:
+- Get current, up-to-date documentation
+- Find official examples and patterns
+- Avoid deprecated props or patterns
+- Ensure accessibility compliance
+
+
+### 6. Examine Git History
 
 Understand recent changes:
 ```bash
@@ -113,7 +149,7 @@ Look for:
 - Related PRs that might have introduced the bug
 - Commits around the time the bug was first reported
 
-### 6. Identify Root Cause
+### 7. Identify Root Cause
 
 Test hypotheses:
 - Add console.log or debugger statements
@@ -121,14 +157,14 @@ Test hypotheses:
 - Examine the actual values and execution flow
 - Confirm the actual root cause
 
-### 7. Recommend Fix Strategy
+### 8. Recommend Fix Strategy
 
 Based on the root cause, propose how to fix it:
 - **Minimal change**: What's the smallest fix?
 - **Correct approach**: What's the right way to solve this?
 - **Breaking changes**: Will this affect existing behavior?
 
-### 8. Generate Root Cause Analysis
+### 9. Generate Root Cause Analysis
 
 Create `artifacts/bugfix/root-cause-{issue-key}.md`:
 
@@ -154,7 +190,7 @@ Create `artifacts/bugfix/root-cause-{issue-key}.md`:
 **Ready for:** /fix OCMUI-{XXXX}
 ```
 
-### 9. Re-read Controller and Return
+### 10. Re-read Controller and Return
 
 After generating the root cause analysis, re-read `.claude/skills/controller/SKILL.md` and return control to the controller for next step recommendations.
 
@@ -168,3 +204,4 @@ After generating the root cause analysis, re-read `.claude/skills/controller/SKI
 - **Use file:line notation**: Always reference code locations as `src/components/ClusterList.tsx:245`
 - **Test hypotheses systematically**: Don't just guess - add logging and verify
 - **Be thorough**: Root cause analysis quality directly affects fix quality
+- **PatternFly docs**: For UI component bugs, use Context7 MCP to fetch current PatternFly React documentation

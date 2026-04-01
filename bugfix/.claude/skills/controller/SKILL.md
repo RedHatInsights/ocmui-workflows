@@ -102,6 +102,7 @@ Other options:
 
 **After /diagnose:**
 - For OCM API-related bugs → recommend validating API contracts with `ocm-api-model` repo
+- For PatternFly UI component bugs → recommend checking PatternFly docs via Context7 MCP
 - Always recommend `/fix OCMUI-{XXXX}` to implement the identified solution
 - If fix is trivial → offer `/bugfix-all OCMUI-{XXXX}` to automate fix + test + PR
 - **Always include issue key**

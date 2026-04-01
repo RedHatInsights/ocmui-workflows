@@ -98,6 +98,21 @@ Follow UHC Portal coding standards from `.cursor/rules/`:
 - Use PatternFly components (no custom CSS)
 - Use PatternFly utility classes for spacing/layout
 - Import from `@patternfly/react-core`, `@patternfly/react-table`, etc.
+- **Check PatternFly docs** via Context7 MCP when:
+  - Unsure about component props or API
+  - Need examples of component usage
+  - Looking for best practices or patterns
+  - Debugging component behavior
+
+**Using Context7 for PatternFly docs**:
+```
+Use context7 to query PatternFly React documentation:
+- "PatternFly Button component API"
+- "PatternFly DataList examples"
+- "PatternFly Form validation patterns"
+```
+
+Context7 fetches current documentation, ensuring you have up-to-date component APIs and examples.
 
 ### 4. Make Minimal Changes
 
@@ -201,3 +216,4 @@ After generating implementation notes, re-read `.claude/skills/controller/SKILL.
 - **AI attribution**: If AI assisted significantly, note it for the PR description
 - **Check .cursor/rules**: Always reference the appropriate rules files for your changes
 - **OCM API validation**: When fixing API-related bugs, reference the `ocm-api-model` repo at `/workspace/repos/ocm-api-model` to validate endpoint behavior, required fields, and request structure
+- **PatternFly documentation**: Use Context7 MCP to fetch PatternFly React docs on-demand for component APIs, props, examples, and best practices
