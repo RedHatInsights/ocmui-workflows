@@ -11,11 +11,27 @@ This workflow is specifically designed for the OCMUI/UHC Portal team at Red Hat,
 - **PR Process**: 2 dev + 1 QE approval workflow
 - **Testing Requirements**: Jest/RTL unit tests + Playwright e2e tests + coverage checks
 
+## Workflow Commands
+
+### List Unscrubbed Bugs (`/list-unscrubbed`) - INTERRUPTION CATCHER START
+
+**Purpose**: Fetch and display all unscrubbed bugs from OCMUI Jira
+
+**Process**:
+- Executes JQL query to find bugs without 'scrubbed' label
+- Displays table with: Key, Priority, Summary, Assignee, Created date, Labels
+- Shows summary statistics (total count, priority breakdown)
+- Provides guidance on how to scrub a specific bug
+
+**Output**: Console output only (no artifact file)
+
+**When to use**: Start here when beginning Interruption Catcher duty to see what needs scrubbing
+
 ## Workflow Phases
 
-### Phase 1: Scrub (`/scrub`) - PRIMARY ENTRY POINT
+### Phase 1: Scrub (`/scrub`) - BUG EVALUATION
 
-**Purpose**: Evaluate unscrubbed bugs from the Defect Manager Dashboard
+**Purpose**: Evaluate a specific bug from the unscrubbed list
 
 **Process**:
 - Determine if it's really a bug (vs story/task)
@@ -27,7 +43,7 @@ This workflow is specifically designed for the OCMUI/UHC Portal team at Red Hat,
 
 **Output**: `artifacts/bugfix/scrubbing/scrub-report-{issue-key}.md`
 
-**When to use**: Start here for unscrubbed bugs from the [Defect Manager Dashboard](https://issues.redhat.com/secure/Dashboard.jspa?selectPageId=12358493)
+**When to use**: After running `/list-unscrubbed` to pick a specific bug, or if you already have a Jira URL
 
 ### Phase 2: Reproduce (`/reproduce`)
 
@@ -133,8 +149,9 @@ This workflow is specifically designed for the OCMUI/UHC Portal team at Red Hat,
 **For Interruption Catcher duty:**
 ```
 1. Load this workflow in ACP
-2. Run /scrub with a Jira URL from the Defect Manager Dashboard
-3. Follow the recommended next steps
+2. Run /list-unscrubbed to see all bugs needing scrubbing
+3. Run /scrub OCMUI-1234 for the bug you want to evaluate
+4. Follow the recommended next steps
 ```
 
 **For an already-scrubbed bug:**
@@ -156,7 +173,13 @@ This workflow is specifically designed for the OCMUI/UHC Portal team at Red Hat,
 ### Scenario 1: Interruption Catcher scrubbing new bugs
 
 ```
-User: "I'm on Interruption Catcher duty. Here's a new bug: https://issues.redhat.com/browse/OCMUI-1234"
+User: "I'm starting Interruption Catcher duty"
+
+Workflow: Runs /list-unscrubbed
+→ Shows 6 unscrubbed bugs in a table
+→ User picks OCMUI-1234
+
+User: "/scrub OCMUI-1234"
 
 Workflow: Runs /scrub to evaluate the bug
 → Determines it's a valid bug, reproducible, Major priority
@@ -285,7 +308,7 @@ This workflow is customized for OCMUI:
 
 ## References
 
-- **Defect Manager Dashboard**: https://issues.redhat.com/secure/Dashboard.jspa?selectPageId=12358493
+- **Unscrubbed Bugs**: Use `/list-unscrubbed` command (executes JQL query directly)
 - **UHC Portal Repo**: https://github.com/RedHatInsights/uhc-portal
 - **PR Process**: uhc-portal/docs/pull-request-process.md
 - **PR Template**: uhc-portal/.github/pull_request_template.md
