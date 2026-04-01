@@ -20,7 +20,6 @@ Evaluate unscrubbed bugs from the OCMUI Defect Manager Dashboard to determine if
 
 - If given a Jira URL, extract the issue key (e.g., OCMUI-1234)
 - If given a description, ask for the Jira URL
-- Note: actual Jira API integration coming later - for now, work with information the user provides
 
 ### 2. Evaluate: Is This Really a Bug?
 
@@ -114,52 +113,28 @@ OR
 
 ### 7. Generate Scrubbing Report
 
-Create `artifacts/bugfix/scrubbing/scrub-report-{issue-key}.md` with:
+Create `artifacts/bugfix/scrub-{issue-key}.md`:
 
-**Bug Summary:**
-- Issue: {issue-key}
-- Title: {bug title}
-- Current Priority: {current}
-- Reported by: {reporter}
+```markdown
+# Scrub: {OCMUI-XXXX}
 
-**Scrubbing Analysis:**
+## Analysis
+- ✅ **Type:** {Bug/Story/Task} - {reason}
+- ✅ **Reproducible:** {Yes/No/Needs-Info} - {notes}
+- ✅ **Blocked:** {Yes/No} - {reason if blocked}
+- ✅ **Priority:** {Blocker/Critical/Major/Normal/Minor} - {justification}
+- ✅ **Assignment:** {Assign to X / Unassigned} - {rationale}
 
-✅ **Type Check:** [Bug / Story / Task]
-- Reasoning: {why}
+## Jira Updates
+- Status: {current} → {recommended}
+- Priority: {current} → {recommended if changing}
+- Labels: Add `scrubbed` {+ any other labels like needs-uxd}
+{If needs comment: - Comment: "{text}"}
 
-✅ **Reproducibility:** [Can Reproduce / Needs Info / Unreproducible]
-- Status: {assessment}
-- Missing info: {list if applicable}
-
-✅ **Blockers:** [Blocked / Not Blocked]
-- Type: {needs-uxd / backend / other}
-- Reason: {specific blocker}
-
-✅ **Priority Assessment:** [Blocker / Critical / Major / Normal / Minor]
-- Current: {current priority}
-- Recommended: {recommended priority}
-- Justification: {why}
-
-✅ **Assignment:** [Assign to X / Leave Unassigned]
-- Recommendation: {who and why, or why unassigned}
-
-**Recommended Jira Updates:**
-
-```text
-[ ] Change type to: {Story/Task} (if not a bug)
-[ ] Set Priority to: {recommended level}
-[ ] Set Blocked field to: {true/false}
-[ ] Add Blocked Reason: {reason}
-[ ] Add label: needs-uxd (if applicable)
-[ ] Add label: scrubbed
-[ ] Assign to: {developer name} (if applicable)
-[ ] Add to sprint: {current sprint name} (if Blocker/Critical with parent story)
-[ ] Add comment requesting: {missing information}
+## Next Step
+**Issue:** OCMUI-{XXXX}
+**Recommendation:** {/diagnose OCMUI-{XXXX} or wait-for-info}
 ```
-
-**Next Steps:**
-
-{Recommend /reproduce, /diagnose, /fix, or waiting for more info}
 
 ### 8. Re-read Controller and Return
 
@@ -167,22 +142,12 @@ After generating the scrub report, re-read `.claude/skills/controller/SKILL.md` 
 
 ## Output
 
-- `artifacts/bugfix/scrubbing/scrub-report-{issue-key}.md` — Complete scrubbing analysis and Jira update recommendations
-
-## Success Criteria
-
-After running this phase:
-- [ ] Determined if issue is truly a bug
-- [ ] Assessed reproducibility
-- [ ] Identified any blockers
-- [ ] Verified or corrected priority level
-- [ ] Made assignment recommendation
-- [ ] Generated checklist of Jira updates to perform manually
-- [ ] Recommended next workflow phase
+- `artifacts/bugfix/scrub-{issue-key}.md` — Scrubbing analysis and Jira updates
+- Console output with next step: `/diagnose {issue-key}` or wait-for-info
 
 ## Notes
 
-- **Blocker/Critical bugs**: If you identify a Blocker or Critical bug, recommend jumping to `/diagnose` or `/fix` immediately
+- **Blocker/Critical bugs**: If you identify a Blocker or Critical bug, recommend jumping to `/diagnose` immediately
 - **Manual Jira updates**: For now, all Jira updates are manual - we provide recommendations in the scrub report
 - **Scrubbed label**: Only recommend adding 'scrubbed' label if bug is ready to be worked on (enough info, not blocked, priority correct)
 - **3-week rule**: If additional info requested and not provided within 3 weeks, bug is candidate for closure
