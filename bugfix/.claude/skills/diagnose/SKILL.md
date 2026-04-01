@@ -42,7 +42,65 @@ Follow the code path:
 - Follow event handlers and callbacks
 - Examine form validation logic if applicable
 
-### 4. Examine Git History
+### 4. Validate API Contracts (if API-related bug)
+
+**When bug involves OCM API calls** (clusters_mgmt, accounts_mgmt, addons_mgmt, etc.):
+
+Check the API model to validate assumptions about the endpoint:
+
+**Find endpoint definition**:
+```bash
+# Model files define API structure
+ls /workspace/repos/ocm-api-model/model/clusters_mgmt/v1/*{feature}*.model
+
+# Example: cluster update
+# - cluster_resource.model (defines methods: Get, Update, Delete)
+# - cluster_type.model (defines Cluster object fields)
+```
+
+**Key questions to answer**:
+1. **HTTP Method**: GET, POST, PATCH, PUT, or DELETE?
+   - `method Update` typically = PATCH (supports partial updates)
+   - `method Add` typically = POST (requires complete object)
+
+2. **Required vs Optional Fields**: Check the type definition
+   - Fields without defaults are typically required
+   - Check `openapi.json` for explicit `required` array
+
+3. **Field Types**: Validate data types and structure
+   - `String`, `Boolean`, `Integer`, etc.
+   - Nested objects (e.g., `Proxy`, `AWS`)
+
+**OpenAPI Specification** (generated from model):
+```bash
+# Full OpenAPI spec with request/response schemas
+cat /workspace/repos/ocm-api-model/openapi/{service}/v1/openapi.json
+```
+
+**Common API validation scenarios**:
+- ✅ PATCH endpoints support **partial updates** (only send changed fields)
+- ✅ Check if fields are optional before omitting them
+- ✅ Validate enum values and data types
+- ✅ Understand link fields vs embedded objects
+
+**Example from OCMUI-4183**:
+```markdown
+Bug: Sending empty proxy object when only CA cert changed
+API Validation:
+- cluster_resource.model: method Update (= PATCH method)
+- cluster_type.model: Proxy is optional field
+- openapi.json: `required: []` (no required fields)
+Conclusion: PATCH supports partial updates, only send changed fields ✅
+```
+
+**When to validate API contracts**:
+- Sending unexpected data to API
+- Getting API errors (400, 422 validation errors)
+- Unsure about required fields
+- Payload structure questions
+
+
+### 5. Examine Git History
 
 Understand recent changes:
 ```bash
@@ -55,7 +113,7 @@ Look for:
 - Related PRs that might have introduced the bug
 - Commits around the time the bug was first reported
 
-### 5. Identify Root Cause
+### 6. Identify Root Cause
 
 Test hypotheses:
 - Add console.log or debugger statements
@@ -63,14 +121,14 @@ Test hypotheses:
 - Examine the actual values and execution flow
 - Confirm the actual root cause
 
-### 6. Recommend Fix Strategy
+### 7. Recommend Fix Strategy
 
 Based on the root cause, propose how to fix it:
 - **Minimal change**: What's the smallest fix?
 - **Correct approach**: What's the right way to solve this?
 - **Breaking changes**: Will this affect existing behavior?
 
-### 7. Generate Root Cause Analysis
+### 8. Generate Root Cause Analysis
 
 Create `artifacts/bugfix/root-cause-{issue-key}.md`:
 
@@ -96,7 +154,7 @@ Create `artifacts/bugfix/root-cause-{issue-key}.md`:
 **Ready for:** /fix OCMUI-{XXXX}
 ```
 
-### 8. Re-read Controller and Return
+### 9. Re-read Controller and Return
 
 After generating the root cause analysis, re-read `.claude/skills/controller/SKILL.md` and return control to the controller for next step recommendations.
 
