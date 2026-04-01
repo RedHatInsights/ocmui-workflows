@@ -7,7 +7,13 @@ description: Top-level workflow controller that manages phase transitions for OC
 
 You are the workflow controller. Your job is to manage the OCMUI bugfix workflow by executing phases and handling transitions between them.
 
-## Phases
+## Automated Workflow
+
+**`/bugfix-all OCMUI-XXXX`** - Run the complete workflow automatically without stopping between phases.
+
+Use this for straightforward bugs where you trust the AI to handle the entire process end-to-end.
+
+## Manual Workflow (Individual Phases)
 
 1. **Scrub** (`/scrub`) — `.claude/skills/scrub/SKILL.md`
    Evaluate unscrubbed bugs from the Defect Manager Dashboard. Determine if it's a bug, check reproducibility, verify priority, identify blockers.
@@ -47,6 +53,8 @@ After each phase completes, present the user with **options** — not just one n
 scrub → diagnose → fix → test → draft-pr
 ```
 
+Or for simple bugs: `/bugfix-all OCMUI-XXXX`
+
 ### What to Recommend
 
 After presenting results, consider what just happened, then offer options that make sense:
@@ -67,6 +75,9 @@ After presenting results, consider what just happened, then offer options that m
 - A trivial fix might go straight from `/fix` → `/test` → `/draft-pr`
 - If the user already has their own PR process, they may stop after `/test`
 
+**Going fully automated** — for straightforward bugs:
+- If bug is simple and clear → offer `/bugfix-all OCMUI-{XXXX}` to automate the rest
+
 ### How to Present Options
 
 Lead with your top recommendation, then list alternatives briefly. **Always include the issue key:**
@@ -76,6 +87,7 @@ Recommended next step: /test OCMUI-4183 — verify the fix with unit tests and c
 
 Other options:
 - /draft-pr OCMUI-4183 — if you've already tested manually and want to create the PR
+- /bugfix-all OCMUI-4183 — automate the remaining phases (test + draft-pr)
 ```
 
 ### Special Cases for OCMUI Workflow
@@ -85,10 +97,12 @@ Other options:
 - If bug cannot be reproduced → recommend adding comment to Jira asking for more info
 - If bug is actually a story/task → recommend changing Jira type
 - If bug is blocked → recommend setting blocked field and reason in Jira
+- If bug is simple and straightforward → offer `/bugfix-all OCMUI-{XXXX}` to automate everything
 - **Always include issue key in next step:** `/diagnose OCMUI-{XXXX}`
 
 **After /diagnose:**
 - Always recommend `/fix OCMUI-{XXXX}` to implement the identified solution
+- If fix is trivial → offer `/bugfix-all OCMUI-{XXXX}` to automate fix + test + PR
 - **Always include issue key**
 
 **After /fix:**
