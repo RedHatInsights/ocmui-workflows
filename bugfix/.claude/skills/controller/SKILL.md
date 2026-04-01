@@ -7,28 +7,28 @@ description: Top-level workflow controller that manages phase transitions for OC
 
 You are the workflow controller. Your job is to manage the OCMUI bugfix workflow by executing phases and handling transitions between them.
 
-## Phases
+## Automated Workflow
+
+**`/bugfix-all OCMUI-XXXX`** - Run the complete workflow automatically without stopping between phases.
+
+Use this for straightforward bugs where you trust the AI to handle the entire process end-to-end.
+
+## Manual Workflow (Individual Phases)
 
 1. **Scrub** (`/scrub`) — `.claude/skills/scrub/SKILL.md`
    Evaluate unscrubbed bugs from the Defect Manager Dashboard. Determine if it's a bug, check reproducibility, verify priority, identify blockers.
 
-2. **Reproduce** (`/reproduce`) — `.claude/skills/reproduce/SKILL.md`
-   Systematically reproduce the bug in a controlled environment.
-
-3. **Diagnose** (`/diagnose`) — `.claude/skills/diagnose/SKILL.md`
+2. **Diagnose** (`/diagnose`) — `.claude/skills/diagnose/SKILL.md`
    Trace the root cause through code analysis, git history, and hypothesis testing.
 
-4. **Fix** (`/fix`) — `.claude/skills/fix/SKILL.md`
+3. **Fix** (`/fix`) — `.claude/skills/fix/SKILL.md`
    Implement the fix following UHC Portal standards (TypeScript, React, PatternFly).
 
-5. **Test** (`/test`) — `.claude/skills/test/SKILL.md`
+4. **Test** (`/test`) — `.claude/skills/test/SKILL.md`
    Write unit tests (Jest/RTL), run `yarn test-changes`, create e2e tests (Playwright) if needed.
 
-6. **Document** (`/document`) — `.claude/skills/document/SKILL.md`
-   Create PR description using team template, recommend Jira updates.
-
-7. **PR** (`/pr`) — `.claude/skills/pr/SKILL.md`
-   Push to fork and create a draft pull request.
+5. **Draft PR** (`/draft-pr`) — `.claude/skills/draft-pr/SKILL.md`
+   Generate PR description, push to fork, and create a draft pull request.
 
 Phases can be skipped or reordered at the user's discretion.
 
@@ -45,11 +45,15 @@ Phases can be skipped or reordered at the user's discretion.
 
 After each phase completes, present the user with **options** — not just one next step. Use the typical flow as a baseline, but adapt to what actually happened.
 
+**IMPORTANT:** Always include the issue key in recommendations (e.g., `/diagnose OCMUI-4183`) so the user can copy/paste.
+
 ### Typical Flow
 
 ```text
-scrub → reproduce → diagnose → fix → test → document → pr
+scrub → diagnose → fix → test → draft-pr
 ```
+
+Or for simple bugs: `/bugfix-all OCMUI-XXXX`
 
 ### What to Recommend
 
@@ -58,47 +62,61 @@ After presenting results, consider what just happened, then offer options that m
 **Continuing to the next step** — often the next phase in the flow is the best option
 
 **Skipping forward** — sometimes phases aren't needed:
-- Scrub identified a clear bug and root cause → offer `/fix` alongside `/reproduce`
-- Bug is already well-documented → skip `/scrub`, go to `/reproduce`
-- Blocker/Critical bug → offer `/diagnose` or `/fix` immediately
+- Scrub identified a clear bug and root cause → offer `/fix OCMUI-{XXXX}` alongside `/diagnose OCMUI-{XXXX}`
+- Bug is already well-documented → skip `/scrub`, go to `/diagnose OCMUI-{XXXX}`
+- Blocker/Critical bug → offer `/diagnose OCMUI-{XXXX}` or `/fix OCMUI-{XXXX}` immediately
 
 **Going back** — sometimes earlier work needs revision:
-- Test failures → offer `/fix` to rework the implementation
-- Can't reproduce → go back to `/scrub` to reassess
-- Diagnosis was wrong → offer `/diagnose` again with new information
+- Test failures → offer `/fix OCMUI-{XXXX}` to rework the implementation
+- Can't reproduce → go back to `/scrub OCMUI-{XXXX}` to reassess
+- Diagnosis was wrong → offer `/diagnose OCMUI-{XXXX}` again with new information
 
 **Ending early** — not every bug needs the full pipeline:
-- A trivial fix might go straight from `/fix` → `/test` → `/pr`
+- A trivial fix might go straight from `/fix` → `/test` → `/draft-pr`
 - If the user already has their own PR process, they may stop after `/test`
+
+**Going fully automated** — for straightforward bugs:
+- If bug is simple and clear → offer `/bugfix-all OCMUI-{XXXX}` to automate the rest
 
 ### How to Present Options
 
-Lead with your top recommendation, then list alternatives briefly:
+Lead with your top recommendation, then list alternatives briefly. **Always include the issue key:**
 
 ```text
-Recommended next step: /test — verify the fix with unit tests and coverage check.
+Recommended next step: /test OCMUI-4183 — verify the fix with unit tests and coverage check.
 
 Other options:
-- /document — if you've already tested manually and want to prepare the PR
-- /pr — if you're confident and want to submit immediately
+- /draft-pr OCMUI-4183 — if you've already tested manually and want to create the PR
+- /bugfix-all OCMUI-4183 — automate the remaining phases (test + draft-pr)
 ```
 
 ### Special Cases for OCMUI Workflow
 
 **After /scrub:**
-- If bug is Blocker/Critical → recommend `/diagnose` or `/fix` immediately
+- If bug is Blocker/Critical → recommend `/diagnose OCMUI-{XXXX}` or `/fix OCMUI-{XXXX}` immediately
 - If bug cannot be reproduced → recommend adding comment to Jira asking for more info
 - If bug is actually a story/task → recommend changing Jira type
 - If bug is blocked → recommend setting blocked field and reason in Jira
+- If bug is simple and straightforward → offer `/bugfix-all OCMUI-{XXXX}` to automate everything
+- **Always include issue key in next step:** `/diagnose OCMUI-{XXXX}`
+
+**After /diagnose:**
+- Always recommend `/fix OCMUI-{XXXX}` to implement the identified solution
+- If fix is trivial → offer `/bugfix-all OCMUI-{XXXX}` to automate fix + test + PR
+- **Always include issue key**
 
 **After /fix:**
-- Always recommend `/test` to run `yarn test-changes` and verify coverage
+- Always recommend `/test OCMUI-{XXXX}` to run `yarn test-changes` and verify coverage
 - Remind about PR size limits (1000 lines / 30 files)
+- **Always include issue key**
 
 **After /test:**
-- If coverage is insufficient → recommend going back to `/test` to add more tests
-- If tests pass → recommend `/document` to prepare PR description
+- If coverage is insufficient → recommend going back to `/test OCMUI-{XXXX}` to add more tests
+- If tests pass → recommend `/draft-pr OCMUI-{XXXX}` to create the PR
+- **Always include issue key**
 
-**After /document:**
-- Remind to create DRAFT PR initially
+**After /draft-pr:**
+- Remind to update Jira (see jira-updates file)
+- Remind to address CodeRabbit feedback
 - Remind about 2 dev + 1 QE approval requirement
+- Reference the issue key when discussing Jira updates
