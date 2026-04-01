@@ -82,6 +82,10 @@ Follow UHC Portal coding standards from `.cursor/rules/`:
 - Always handle error states with meaningful messages
 - Provide proper fallback values to prevent undefined errors
 - Organize query files by feature/domain
+- **Validate API contracts**: For OCM API bugs, check `ocm-api-model` repo:
+  - PATCH methods support partial updates (only send changed fields)
+  - Verify required vs optional fields in type definitions
+  - Confirm request/response structure in OpenAPI spec
 
 **TypeScript Standards** (`.cursor/rules/typescript-rules.mdc`):
 - Define prop types using TypeScript interfaces
@@ -196,3 +200,4 @@ After generating implementation notes, re-read `.claude/skills/controller/SKILL.
 - **PR size limits**: If over 1000 lines or 30 files, consider splitting the fix
 - **AI attribution**: If AI assisted significantly, note it for the PR description
 - **Check .cursor/rules**: Always reference the appropriate rules files for your changes
+- **OCM API validation**: When fixing API-related bugs, reference the `ocm-api-model` repo at `/workspace/repos/ocm-api-model` to validate endpoint behavior, required fields, and request structure

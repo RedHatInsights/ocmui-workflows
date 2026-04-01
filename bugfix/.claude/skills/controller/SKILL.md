@@ -101,6 +101,7 @@ Other options:
 - **Always include issue key in next step:** `/diagnose OCMUI-{XXXX}`
 
 **After /diagnose:**
+- For OCM API-related bugs → recommend validating API contracts with `ocm-api-model` repo
 - Always recommend `/fix OCMUI-{XXXX}` to implement the identified solution
 - If fix is trivial → offer `/bugfix-all OCMUI-{XXXX}` to automate fix + test + PR
 - **Always include issue key**
