@@ -89,6 +89,73 @@ describe('MyComponent', () => {
 });
 ```
 
+
+### 2.5. Follow Test File Standards from ESLint Config
+
+**IMPORTANT: Before writing test files, understand the linting rules.**
+
+**Required import order (from [.eslintrc](https://github.com/RedHatInsights/uhc-portal/blob/main/.eslintrc) lines 103-123):**
+
+```typescript
+// Group 1: react first, then a-z packages
+import React from 'react';
+import { Formik } from 'formik';
+
+// Group 2: @ packages
+import { Alert } from '@patternfly/react-core';
+
+// Group 3: ~ internal imports (sorted alphabetically)
+import shouldShowModal from '~/components/common/Modal/ModalSelectors';
+import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
+import { render, screen } from '~/testUtils';
+
+// Group 4: Parent directory (..)
+import { helper } from '../utils/helper';
+
+// Group 5: Current directory (.)
+import EditClusterWideProxyDialog from './EditClusterWideProxyDialog';
+import EditClusterWideProxyForm from './EditClusterWideProxyForm';
+
+// Group 6: THEN jest.mock statements
+jest.mock('~/queries/ClusterDetailsQueries/useEditCluster');
+jest.mock('~/components/common/Modal/ModalSelectors');
+```
+
+**Critical rules:**
+- ❌ NO imports after `jest.mock()` - causes import/first error
+- ❌ NO snapshot tests - forbidden by `.eslintrc` line 102
+- ✅ Use `user` from render (not `fireEvent`) - required by `.eslintrc` line 98
+- ✅ Complete mock return types - check source file for exact properties
+
+**Verify mock return types against source:**
+```bash
+# Before writing mocks, check the actual hook
+grep -A 15 "return {" /workspace/repos/uhc-portal/src/queries/path/to/hook.ts
+```
+
+Example - complete mock for `useMutation`:
+```typescript
+// ✅ CORRECT - includes all properties
+const mockReturn = {
+  data: undefined,       // Required
+  isPending: false,
+  isError: false,
+  error: null,
+  isSuccess: false,      // Required
+  mutate: jest.fn(),
+  reset: jest.fn(),
+};
+
+// ❌ WRONG - missing data, isSuccess
+const mockReturn = {
+  isPending: false,
+  isError: false,
+  error: null,
+  mutate: jest.fn(),
+  reset: jest.fn(),
+};
+```
+
 ### 3. Create Regression Test
 
 Write a test that:
@@ -111,6 +178,41 @@ yarn test
 
 Ensure all tests pass.
 
+### 4.5. Verify Test File Linting (MANDATORY)
+
+**After creating test files, validate them against ESLint rules:**
+
+```bash
+cd /workspace/repos/uhc-portal
+
+# Lint specific test file
+yarn lint src/path/to/test.tsx
+
+# Auto-fix import order and formatting
+yarn lint --fix src/path/to/test.tsx
+
+# TypeScript validation
+yarn typecheck
+```
+
+**Common test file errors:**
+
+1. **Import order** - Automatically fixable with `yarn lint --fix`
+2. **Unused variables** - Remove unused destructured values
+3. **Incomplete mock types** - Add missing properties from source
+4. **Wrong testing library methods** - Use `user.click()` not `fireEvent.click()`
+
+**Checklist before proceeding:**
+- [ ] All imports before `jest.mock()`
+- [ ] Import order: react → @packages → ~/internal → ../ → ./
+- [ ] Complete mock return types (matches source exactly)
+- [ ] No unused variables
+- [ ] Using `user` from render (not `fireEvent`)
+- [ ] No snapshot tests
+
+**DO NOT PROCEED to coverage check if linting fails.**
+
+
 ### 5. Check Test Coverage
 
 **Critical step for UHC Portal:**
@@ -126,6 +228,31 @@ This shows coverage for only the changed code.
 - Focus on testing the bug fix and edge cases
 
 If coverage is low, add more tests.
+
+### 5.5. Build Verification (MANDATORY)
+
+**After tests pass, verify the code builds successfully:**
+
+```bash
+cd /workspace/repos/uhc-portal
+yarn build
+```
+
+**Why this matters:**
+- `yarn typecheck` validates types but doesn't check webpack compilation
+- `yarn build` catches import errors, module resolution issues, and runtime type errors
+- Build failures in CI are more expensive than catching them locally
+
+**If build fails:**
+1. Check error message for specific file and line
+2. Common issues:
+   - Circular dependencies
+   - Missing type exports
+   - Invalid import paths
+   - TypeScript errors not caught by typecheck
+
+**DO NOT proceed to documentation if build fails.**
+
 
 ### 6. Create E2E Tests (if UI changes)
 

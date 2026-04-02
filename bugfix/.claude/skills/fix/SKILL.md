@@ -94,14 +94,62 @@ If diagnosis identified similar code:
 - Skip if uncertain - create separate issues
 - Document decision in implementation notes
 
-### 6. Run Linters
+### 6. Run Linters and Type Checking (MANDATORY)
 
+**CRITICAL: This step is mandatory and must pass before proceeding.**
+
+**Install dependencies (if not already installed):**
 ```bash
-yarn lint
-yarn typecheck
+cd /workspace/repos/uhc-portal
+yarn install --frozen-lockfile
 ```
 
-Fix any errors before proceeding.
+**Check code quality:**
+```bash
+yarn lint        # ESLint + Prettier (MUST PASS)
+yarn typecheck   # TypeScript type checking (MUST PASS)
+```
+
+**If errors found, auto-fix what's possible:**
+```bash
+yarn lint --fix  # Auto-fixes import order, formatting
+```
+
+**Common lint errors and fixes:**
+
+**Import order violations** - Move all imports to top, before jest.mock():
+```typescript
+// ❌ WRONG
+import React from 'react';
+jest.mock('~/hooks/useHook');
+import { useHook } from '~/hooks/useHook';  // ← import/first error
+
+// ✅ CORRECT
+import React from 'react';
+import { useHook } from '~/hooks/useHook';
+jest.mock('~/hooks/useHook');
+```
+
+**Unused variables** - Remove or prefix with underscore:
+```typescript
+// ❌ TS6133: 'unused' is declared but its value is never read
+const { used, unused } = someObject;
+
+// ✅ CORRECT
+const { used } = someObject;
+// or
+const { used, _unused } = someObject;
+```
+
+**Reference linting configurations:**
+- ESLint rules: [.eslintrc](https://github.com/RedHatInsights/uhc-portal/blob/main/.eslintrc)
+  - Lines 103-123: Import order rules (simple-import-sort/imports)
+  - Lines 92-101: Testing Library rules
+- TypeScript config: [tsconfig.json](https://github.com/RedHatInsights/uhc-portal/blob/main/tsconfig.json)
+  - `strict: true`, `noUnusedLocals: true`
+- Lint config: [tsconfig.lint.json](https://github.com/RedHatInsights/uhc-portal/blob/main/tsconfig.lint.json)
+
+**DO NOT PROCEED if linters fail.** Lint errors in CI will fail the build and require fixes.
 
 ### 7. Test Manually
 
@@ -186,7 +234,7 @@ Create `artifacts/bugfix/fixes/implementation-{issue-key}.md`:
 - [ ] Original functionality still works
 - [ ] Edge cases tested
 - [ ] No console errors
-- [ ] Linters pass
+- [ ] **Linters pass (yarn lint && yarn typecheck)**
 
 ## Implementation Decisions
 
@@ -226,7 +274,7 @@ After running this phase:
 - [ ] Feature branch created
 - [ ] Code changes implement the fix
 - [ ] UHC Portal standards followed
-- [ ] Linters pass
+- [ ] **Linters pass (yarn lint && yarn typecheck)**
 - [ ] Manual verification complete
 - [ ] Implementation documented
 - [ ] PR size within limits (or noted if over)
@@ -238,3 +286,4 @@ After running this phase:
 - **Test manually**: Don't rely only on automated tests - verify with your eyes
 - **PR size limits**: If over 1000 lines or 30 files, consider splitting the fix
 - **AI attribution**: If AI assisted significantly, note it for the PR description
+- **Mandatory linting**: Lint errors will fail CI - catch them early
