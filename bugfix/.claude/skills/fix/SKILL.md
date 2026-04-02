@@ -131,15 +131,33 @@ Context7 fetches current documentation, ensuring you have up-to-date component A
 - Update types if the fix requires it
 - Check if unit tests exist and suggest adding/modifying if needed
 
-### 5. Run Linters and Formatters
+### 5. Review Linting Standards Before Coding
 
-**Check code quality:**
+**CRITICAL:** Before writing code, review uhc-portal linting rules to avoid common errors.
+
+**Read linting configurations:**
+- ESLint rules: [.eslintrc](https://github.com/RedHatInsights/uhc-portal/blob/main/.eslintrc)
+  - Lines 103-123: Import order rules (simple-import-sort/imports)
+  - Lines 92-101: Testing Library rules (prefer-user-event, no snapshots)
+  - Lines 22-53: Import restrictions (PatternFly icons, apiRequest)
+- TypeScript config: [tsconfig.json](https://github.com/RedHatInsights/uhc-portal/blob/main/tsconfig.json)
+  - strict: true, noUnusedLocals: true
+- Detailed guide: [ESLint & TypeScript Reference](../reference/eslint-typescript-guide.md)
+
+**Common rules to follow:**
+- **Import order**: All imports BEFORE `jest.mock()` statements
+- **No `any` types**: Use proper TypeScript types
+- **No unused variables**: Remove or prefix with `_`
+- **Testing Library**: Use `user` from render, not `fireEvent`
+- **PatternFly icons**: Use full ESM paths, not barrel imports
+
+**Code quality checks:**
 ```bash
 yarn lint        # ESLint checks (includes Prettier)
 yarn typecheck   # TypeScript type checking
 ```
 
-**Auto-fix formatting issues:**
+**Auto-fix formatting:**
 ```bash
 yarn prettier:fix   # Fix formatting in all src files
 # or
@@ -147,12 +165,9 @@ npx lint-staged     # Fix only staged files (same as pre-commit hook)
 ```
 
 **Important notes:**
-- `yarn lint` runs both ESLint and Prettier checks
-- Husky pre-commit hook automatically runs `lint-staged` on commit
-- Staged files in `src/` are auto-formatted by Prettier on commit
-- If auto-fix fails, commit will be blocked - fix manually
-
-Fix any errors before proceeding.
+- Husky pre-commit hook will run `lint-staged` automatically on commit
+- If hook fails, fix errors manually before re-committing
+- Reference the guide above for detailed examples of common errors
 
 ### 6. Test Manually
 
