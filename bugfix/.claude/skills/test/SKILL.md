@@ -158,6 +158,43 @@ it.skip('is accessible after modal opens', async () => {
 });
 ```
 
+
+### 2.5. Review Test File Linting Rules
+
+**Before writing test files, review critical linting rules:**
+
+**Import order from [.eslintrc](https://github.com/RedHatInsights/uhc-portal/blob/main/.eslintrc) (lines 103-123):**
+```typescript
+// 1. React and external packages
+import React from 'react';
+import { Formik } from 'formik';
+
+// 2. @ packages
+import { Alert } from '@patternfly/react-core';
+
+// 3. ~ internal imports (sorted alphabetically)
+import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
+import { render, screen } from '~/testUtils';
+
+// 4. Relative imports (.., .)
+import EditClusterWideProxyDialog from './EditClusterWideProxyDialog';
+
+// 5. THEN jest.mock() statements
+jest.mock('~/queries/ClusterDetailsQueries/useEditCluster');
+```
+
+**Critical rules to follow:**
+- ✅ All imports BEFORE `jest.mock()` - violating causes `import/first` error
+- ✅ Complete mock return types - check source file:
+  ```bash
+  grep -A 10 "return {" src/queries/path/to/hook.ts
+  ```
+- ✅ No unused variables (causes `TS6133` errors)
+- ✅ Use `user` from render, NOT `fireEvent` (`.eslintrc` line 98)
+- ❌ NO snapshot tests (forbidden by `.eslintrc` line 102)
+
+**Reference:** [ESLint & TypeScript Guide](../reference/eslint-typescript-guide.md) for complete test file template and examples.
+
 ### 3. Create Regression Test
 
 Write a test that:
