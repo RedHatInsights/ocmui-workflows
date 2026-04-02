@@ -41,31 +41,39 @@ git checkout -b bugfix/OCMUI-{issue-number}-{brief-description}
 Follow UHC Portal coding standards:
 
 **TypeScript Standards** (from `.cursor/rules/typescript-rules.mdc`):
+
 - Define prop types using TypeScript interfaces
 - Avoid `any` - use `unknown` if needed
 - Use existing types from `src/types/` directories
+
 - Define return types for all functions
 - Use `import type` for type-only imports
 
 **React Standards** (from `.cursor/rules/react-rules.mdc`):
+
 - Use functional components with hooks
 - Keep components small and focused
 - Use PascalCase for component files
 - Boolean props: prefix with `is`, `has`, `can`, `should`
+
 - Don't mutate props or state - create copies
 - Avoid inline functions in JSX
+
 - Use `useMemo` for expensive calculations
 - Use `useCallback` for functions passed to children
 
 **General Standards** (from `.cursor/rules/general-rules.mdc`):
+
 - Keep functions small and single-purpose
 - Use CamelCase for files unless React (tsx/jsx)
 - No abbreviations in variable names
+
 - Match filename with default export name
 - Use early return pattern
 - Extract reusable logic to custom hooks
 
 **PatternFly UI**:
+
 - Use PatternFly components (no custom CSS)
 - Use PatternFly utility classes for spacing/layout
 - Import from `@patternfly/react-core`, `@patternfly/react-table`, etc.
@@ -75,6 +83,7 @@ Follow UHC Portal coding standards:
 **Principle**: Fix only what's broken.
 
 ❌ **Don't:**
+
 - Refactor surrounding code
 - Add features
 - Fix unrelated issues
@@ -82,6 +91,7 @@ Follow UHC Portal coding standards:
 - Add unnecessary comments
 
 ✅ **Do:**
+
 - Fix the specific bug
 - Address similar patterns if identified in diagnosis
 - Add issue reference in comments if logic is non-obvious
@@ -90,6 +100,7 @@ Follow UHC Portal coding standards:
 ### 5. Handle Similar Patterns
 
 If diagnosis identified similar code:
+
 - Fix them in the same PR if they're clearly the same bug
 - Skip if uncertain - create separate issues
 - Document decision in implementation notes

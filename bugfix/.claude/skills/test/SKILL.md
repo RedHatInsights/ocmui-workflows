@@ -29,12 +29,14 @@ Load implementation notes to understand:
 Follow UHC Portal unit testing standards (from `.cursor/rules/unit-test-rules.mdc`):
 
 **Testing Principles:**
+
 - Follow Arrange-Act-Assert pattern
 - Test behavior, not implementation details
 - Write descriptive test names
 - Keep mocks simple and focused
 
 **React Testing Library:**
+
 - Import `render`, `screen` from `~/testUtils`
 - Use `user` from render for interactions (not `fireEvent`)
 - Query priority: `getByRole` > `getByLabelText` > `getByPlaceholderText` > `getByText` > `getByTestId`
@@ -42,6 +44,7 @@ Follow UHC Portal unit testing standards (from `.cursor/rules/unit-test-rules.md
 - Use `checkAccessibility` utility when appropriate
 
 **Best Practices:**
+
 - Avoid mocking child React components unless necessary
 - Use `jest.clearAllMocks()` in `beforeEach` or `afterEach`
 - Test error states and loading states
@@ -155,6 +158,7 @@ yarn test-changes
 This shows coverage for only the changed code.
 
 **Coverage expectations:**
+
 - Aim for high coverage on modified code
 - It's okay if not 100% (some code is hard to test)
 - Focus on testing the bug fix and edge cases
@@ -174,6 +178,7 @@ Catches import errors and module resolution issues that `typecheck` misses.
 ### 6. Create E2E Tests (if UI changes)
 
 **When e2e tests are needed:**
+
 - New UI components added
 - UI interaction flow changed
 - Critical user paths affected
@@ -181,25 +186,31 @@ Catches import errors and module resolution issues that `typecheck` misses.
 **Playwright e2e standards** (from `.cursor/rules/playwright-e2e-tests-rules.mdc`):
 
 **Page Objects:**
+
 - Every page object extends `BasePage`
 - File naming: `{feature}-page.ts`, class: `{Feature}Page`
 - Locator methods are synchronous (return `Locator`)
 - Action methods are async (return `Promise<void>`)
+
 - Every page has `is{PageName}()` method for validation
 - Selector priority: `getByRole` > `getByLabel` > `getByText` > `getByTestId`
 - Never use CSS selectors or dynamic IDs
 - Chain locators for scoped queries
 
 **Test Specs:**
+
 - Import `test`, `expect` from custom fixtures (`../../fixtures/pages`)
 - Use `test.describe.serial` for multi-step flows with shared state
 - Use regular `test.describe` for independent tests
 - Every describe includes tags: `{ tag: ['@smoke', '@ci', '@rosa'] }`
+
 - Use `navigateTo` fixture for navigation
 - Call `is{PageName}()` in `test.beforeAll` to validate
+
 - Tag `@ci` for fast, side-effect-free tests
 - Tag `@smoke` for critical Day 0/Day 1 paths
 - Tag `@day1` or `@day2` to indicate lifecycle phase
+
 - Never use `page.waitForTimeout()` or `page.waitForLoadState('networkidle')`
 
 **Example e2e test:**
